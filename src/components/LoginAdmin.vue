@@ -10,7 +10,7 @@
         </div>
         <div class="inputfield">
           <i class="fa-regular fa-keyboard"></i>
-          <input required type="password" placeholder="Password" v-model="pass"/>
+          <input required type="password" placeholder="Password" v-model="pass" autocomplete="new-password"/>
         </div>
       </div>
       <div class="loginbutton">

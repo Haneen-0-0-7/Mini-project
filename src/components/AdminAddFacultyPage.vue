@@ -28,6 +28,7 @@
                   id="password"
                   v-model="password"
                   placeholder="Password"
+                  autocomplete="new-password"
                 />
                 <br />
                 <input
@@ -39,7 +40,9 @@
                 />
                 <br />
                 <div id="buttondiv">
-                  <button type="submit" class="btnsubmit">Add</button>
+                  <button type="submit" class="btnsubmit" @click="addfaculty">
+                    Add
+                  </button>
                   <button class="btnsubmit" @click="showModal = false">
                     Close
                   </button>
@@ -63,13 +66,18 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(faculty, index) in faculties" :key="index">
-                    <td>{{ faculty.username }}</td>
-                    <td class="facultypass">{{ faculty.password }}</td>
-                    <td class="facultyemail">{{ faculty.email }}</td>
+                  <tr v-for="f in faculties" v-bind:key="f.FacultyId">
+                    <td>{{ f.FacultyName }}</td>
+                    <td class="facultypass">{{ f.FacultyPass }}</td>
+                    <td class="facultyemail">{{ f.FacultyEmail }}</td>
                     <td>
-                      <button @click="editFaculty(index)" class="edit">Edit</button>
-                      <button @click="deleteFaculty(index)" class="delete">Delete</button>
+                      <!-- <button @click="editFaculty()" class="edit">Edit</button> -->
+                      <button
+                        @click="deleteFaculty(f.FacultyId)"
+                        class="delete"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 </tbody>
@@ -86,6 +94,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "AdminAddFacultyPage",
   components: {},
@@ -96,14 +105,15 @@ export default {
       username: "",
       password: "",
       email: "",
-      faculties: [
-        { username: "john", password: "password1", email: "john@example.com" },
-        { username: "jane", password: "password2", email: "jane@example.com" },
-        { username: "bob", password: "password3", email: "bob@example.com" },
-      ],
+      faculties: [],
     };
   },
   methods: {
+    refreshData() {
+      axios.get("http://127.0.0.1:8000/faculty").then((response) => {
+        this.faculties = response.data;
+      });
+    },
     closemodal() {
       this.showModal = false;
     },
@@ -112,11 +122,28 @@ export default {
     },
     addFaculty() {
       // Add logic to send the form data to the server
-      this.faculties.push({
-        username: this.username,
-        password: this.password,
-        email: this.email,
+      const data = {
+        FacultyName: this.username,
+        FacultyPass: this.password,
+        FacultyEmail: this.email,
+      };
+
+      axios.post("http://127.0.0.1:8000/faculty", data).then((response) => {
+        alert(response.data);
+        this.refreshData();
       });
+
+      const emailData = {
+        to: this.email, // Replace with the email entered by the user
+        subject: "Faculty Account Details",
+        text: `Dear faculty, your username is ${this.username} and your password is ${this.password}. Please log in and change your password immediately.`,
+      };
+
+      
+    axios.post("http://127.0.0.1:8000/faculty", emailData)
+      .then(() => {
+        console.log('Email sent successfully!');
+      })
 
       // Reset the form fields and close the modal
       this.username = "";
@@ -124,12 +151,17 @@ export default {
       this.email = "";
       this.showModal = false;
     },
-    editFaculty(index) {
-      alert("Editing faculty:", this.faculties[index]);
+    deleteFaculty(id) {
+      axios.delete(`http://127.0.0.1:8000/faculty/${id}`).then((response) => {
+        this.refreshData();
+        alert(response.data);
+        // Update your Vue.js data here as needed
+      });
     },
-    deleteFaculty(index) {
-      this.faculties.splice(index, 1);
-    },
+  },
+
+  mounted: function () {
+    this.refreshData();
   },
 };
 </script>
@@ -138,28 +170,28 @@ export default {
 input[type="text"],
 input[type="password"],
 input[type="email"] {
-display: block;
-margin-bottom: 10px;
+  display: block;
+  margin-bottom: 10px;
 }
 
 table {
-border-collapse: collapse;
-width: 100%;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 th,
 td {
-padding: 10px;
-text-align: left;
-border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
 }
 
 th {
-background-color: #f2f2f2;
+  background-color: #f2f2f2;
 }
 
 .email-cell {
-padding-left: 20px;
+  padding-left: 20px;
 }
 
 h2 {
@@ -298,16 +330,15 @@ form {
   border: 3px black solid;
 }
 
-.edit{
-    background-color: green;
-    color:white;
-    margin-left: 1em;
+.edit {
+  background-color: green;
+  color: white;
+  margin-left: 1em;
 }
 
-.delete{
-    background-color: red;
-    color:white;
-    margin-left: 1em;
+.delete {
+  background-color: red;
+  color: white;
+  margin-left: 1em;
 }
-
 </style>

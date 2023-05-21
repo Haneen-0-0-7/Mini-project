@@ -2,7 +2,7 @@
   <button @click="showModal = true" class="btn">Malpractice Register</button>
   <div v-if="showModal" class="modal">
     <div class="modal-content">
-      <h2>Add Faculty</h2>
+      <h2>Malpractice Form</h2>
       <form @submit.prevent="addFaculty">
         <input
           required
@@ -18,8 +18,17 @@
           type="text"
           class="input"
           id="password"
-          v-model="Register"
+          v-model="Batch"
           placeholder="Batch"
+        />
+        <br />
+        <input
+          required
+          type="text"
+          class="input"
+          id="password"
+          v-model="Register"
+          placeholder="RegisterNo"
         />
         <br />
         <input
@@ -34,12 +43,20 @@
           class="input"
           type="text"
           id="email"
+          v-model="Invigilator"
+          placeholder="Name of Invigilator"
+        />
+        <br />
+        <input
+          class="input"
+          type="text"
+          id="email"
           v-model="Remarks"
           placeholder="Remarks(in 15 words or so)"
         />
         <br />
         <div id="buttondiv">
-          <button type="submit" class="btnsubmit">Add</button>
+          <button type="submit" class="btnsubmit" @click="addmalpractice">Add</button>
           <button class="btnsubmit" @click="showModal = false">Close</button>
         </div>
       </form>
@@ -48,6 +65,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: "FacultyMalpractice",
   data() {
@@ -55,22 +73,40 @@ export default {
       showModal: false,
       Name: "",
       Register : "",
+      Batch:"",
       Class : "",
       Remarks: "",
+      Invigilator:"",
     };
   },
   methods:{
+    refreshData() {
+      axios.get("http://127.0.0.1:8000/faculty").then((response) => {
+        this.faculties = response.data;
+      });
+    },
     addFaculty() {
       // Add logic to send the form data to the server
-      this.faculties.push({
-        username: this.username,
-        password: this.password,
-        email: this.email,
+      const data = {
+        StudentName: this.Name,
+        StudentRegister: this.Register,
+        StudentBatch: this.Batch,
+        StudentClass: this.Class,
+        StudentRemark: this.Remarks,
+        StudentInvigilator: this.Invigilator,
+      };
+
+      axios.post("http://127.0.0.1:8000/malpractice", data).then((response) => {
+        alert(response.data);
+        this.refreshData();
       });
       // Reset the form fields and close the modal
-      this.username = "";
-      this.password = "";
-      this.email = "";
+      this.Name = "";
+      this.Register = "";
+      this.Batch = "";
+      this.Class = "";
+      this.Remarks = "";
+      this.Invigilator = "";
       this.showModal = false;
     },
   }

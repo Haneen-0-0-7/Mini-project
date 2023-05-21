@@ -1,27 +1,31 @@
 <template>
-  <button @click="showViewModal = true" class="btn">Malpractice Records</button>
+  <button @click.prevent="showViewModal = true" class="btn">Malpractice Records</button>
   <div v-if="showViewModal" class="modal">
     <div class="modal-content">
       <h2>Record of Malpractice</h2>
       <table class="table">
         <thead>
           <tr>
+            <th class="head">StudentName</th>
             <th class="head">RegisterNo</th>
-            <th class="head">Batch</th>
             <th class="head">Class of exam</th>
+            <th class="head">Batch</th>
             <th class="head">Remark</th>
+            <th class="head">Invigilator</th>
             <th class="head">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(faculty, index) in faculties" :key="index">
-            <td>{{ faculty.Name }}</td>
-            <td class="facultypass">{{ faculty.Register }}</td>
-            <td class="facultyemail">{{ faculty.Class }}</td>
-            <td class="facultyemail">{{ faculty.Remarks }}</td>
+          <tr v-for="(f) in faculties" :key="f.StudentId">
+            <td>{{ f.StudentName }}</td>
+            <td class="facultypass">{{ f.StudentRegister }}</td>
+            <td class="facultyemail">{{ f.StudentClass }}</td>
+            <td class="facultyemail">{{ f.StudentBatch }}</td>
+            <td class="facultyemail">{{ f.StudentRemark }}</td>
+            <td class="facultyemail">{{ f.StudentInvigilator }}</td>
             <td>
-              <button @click="editFaculty(index)" class="edit">Edit</button>
-              <button @click="deleteFaculty(index)" class="delete">
+              <!-- <button @click="editFaculty()" class="edit">Edit</button> -->
+              <button @click="deleteFaculty(f.StudentId)" class="delete">
                 Delete
               </button>
             </td>
@@ -34,25 +38,36 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: "MalpracticeRecordsButton",
   data() {
     return {
       showViewModal: false,
-      faculties: [
-        { Name: "john", Register: "password1", Class: "john@example.com",Remarks:"Copied" },
-        { Name: "jane", Register: "password2", Class: "jane@example.com",Remarks:"Copied" },
-        { Name: "bob", Register: "password3", Class: "bob@example.com" ,Remarks:"Used Electronics"},
-        { Name: "jane", Register: "password2", Class: "jane@example.com",Remarks:"Copied" },
-      ],
+      faculties: [],
     };
   },
+  mounted() {
+    axios.get('http://127.0.0.1:8000/malpractice')
+      .then(response => {
+        this.faculties = response.data;
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  },
   methods: {
-    editFaculty(index) {
-      alert("Editing faculty:", this.faculties[index]);
+    refreshData() {
+      axios.get("http://127.0.0.1:8000/malpractice").then((response) => {
+        this.faculties = response.data;
+      });
     },
-    deleteFaculty(index) {
-      this.faculties.splice(index, 1);
+    deleteFaculty(id) {
+      axios.delete(`http://127.0.0.1:8000/malpractice/${id}`).then((response) => {
+        this.refreshData();
+        alert(response.data);
+        // Update your Vue.js data here as needed
+      });
     },
   },
 };

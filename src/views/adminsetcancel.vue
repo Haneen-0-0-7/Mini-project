@@ -1,15 +1,18 @@
 <template>
-    <AdminSetExamPage/>
+  <SetExamPageNav/>
+  <SetExam/>
 </template>
 
 <script>
-    import AdminSetExamPage from '../components/AdminSetExamPage.vue';
-    export default{
-        name:'adminsetcancel_',
-        components:{
-            AdminSetExamPage,
-        }
-    }
+  import SetExamPageNav from "../components/AdminsetcancelexamNav.vue";
+  import SetExam from "../components/Adminsetcancel.vue"
+  export default{
+      name:'adminsetcancel_',
+      components:{
+          SetExamPageNav,
+          SetExam
+      }
+  }
 </script>
 
 <style scoped>

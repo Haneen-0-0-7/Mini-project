@@ -8,6 +8,7 @@ import adminaddfaculty from '../views/adminaddfaculty.vue'
 import facultyPage from '../views/facultyPage.vue'
 import facultyclassallotment from '../views/facultyclassallotment.vue'
 import facultyclassattendance from '../views/facultyclassattendance.vue'
+import adminfacultyclassroom from '../views/adminfacultyclassroom.vue'
 const routes = [
     {
         path :'/',
@@ -53,6 +54,11 @@ const routes = [
         path:'/facultyclassattendance',
         name:'facultyclassattendance',
         component:facultyclassattendance
+    },
+    {
+        path:'/adminfacultyclassroom',
+        name:'adminfacultyclassroom',
+        component:adminfacultyclassroom
     },
 ]
 

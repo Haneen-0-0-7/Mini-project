@@ -33,6 +33,13 @@
           </div>
         </div>
         <div>
+          <button
+            type="button"
+            class="finalsubmit"
+            @click.prevent="examidsubmit"
+          >
+            Submit
+          </button>
           <label class="yearslabel">Years Taking Part in Exam:</label>
           <div class="years-checkboxes">
             <div v-for="year in years" :key="year" class="years-checkbox">
@@ -49,49 +56,51 @@
           </div>
         </div>
 
-        <!-- Modals -->
         <div v-for="year in years" :key="year">
           <div v-if="modals[year].visible" class="modal floating-modal">
             <div class="modalhead">
               <div class="modalhead-left">
                 <h3>{{ year }}</h3>
-                <div class="column">
-                  <input
-                    type="text"
-                    placeholder="Enter the Batch"
-                    v-model="modals[year].inputText"
-                    class="modaltextfield"
-                    @keyup.enter="addText(year)"
-                  />
-                  <sr
-                    >Press Enter to add the batches below and upload CSV
-                    files</sr
-                  >
-                </div>
               </div>
             </div>
-            <div
-              v-for="text in modals[year].texts"
-              :key="text"
-              class="text-div"
-            >
-              {{ text }}
-              <input type="file" />
+            <div class="batch-list">
+              <div
+                v-for="batch in batchList[year]"
+                :key="batch"
+                class="batch-item"
+              >
+                <input
+                  type="checkbox"
+                  :id="batch"
+                  :value="batch"
+                  v-model="modals[year].checked[batch]"
+                  @change="openModal(year)"
+                />
+                <label :for="batch">{{ batch }}</label>
+                <input
+                  type="file"
+                  class="upload-csv"
+                  :disabled="!modals[year].checked[batch]"
+                  @change="uploadCSV(year, batch, $event.target.files[0])"
+                />
+              </div>
             </div>
             <div class="row">
               <button type="button" @click="closeModal(year)">Close</button>
-              <button type="button" @click="submitForm">Submit</button>
+              <button type="button" @click="submitForm(year)">Submit</button>
             </div>
-            <div v-if="showDialog" class="modal floating-modal">
+            <div v-if="modals[year].showDialog" class="modal floating-modal">
               <h3>Are you sure you want to submit?</h3>
               <div class="row">
-                <button type="button" @click="showDialog = false">No</button>
-                <button type="button" @click="Dialogsubmit(year)">Yes</button>
+                <button type="button" @click="modals[year].showDialog = false">
+                  No
+                </button>
+                <button type="button" @click="dialogSubmit(year)">Yes</button>
               </div>
             </div>
           </div>
         </div>
-        <button type="button" class="finalsubmit" @click.prevent="finalsubmit">
+        <button type="button" class="finalsubmit" @click.prevent="finalSubmit">
           Submit
         </button>
       </div>
@@ -100,6 +109,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "adminsetcancel_",
   data() {
@@ -107,45 +117,94 @@ export default {
       examName: "",
       examDate: "",
       examTime: "",
+      examId: "",
       years: ["Year 1", "Year 2", "Year 3", "Year 4"],
       selectedYears: [],
       modals: {
         "Year 1": {
-          visible: false, // Initialize visible property
+          visible: false,
           inputText: "",
           texts: [],
           showDialog: false,
           isChecked: false,
+          disabled: {},
+          checked: {},
         },
         "Year 2": {
-          visible: false, // Initialize visible property
+          visible: false,
           inputText: "",
           texts: [],
           showDialog: false,
           isChecked: false,
+          disabled: {},
+          checked: {},
         },
         "Year 3": {
-          visible: false, // Initialize visible property
+          visible: false,
           inputText: "",
           texts: [],
           showDialog: false,
           isChecked: false,
+          disabled: {},
+          checked: {},
         },
         "Year 4": {
-          visible: false, // Initialize visible property
+          visible: false,
           inputText: "",
           texts: [],
           showDialog: false,
           isChecked: false,
+          disabled: {},
+          checked: {},
         },
       },
-      showDialog: false,
+      batchList: {
+        "Year 1": [
+          "COMPUTER SICENCE AND ENGINEERING",
+          "ELECTRONICS AND COMUNICATION",
+          "ELECTRONICS AND ELECTRICAL",
+          "MECHANICAL ENGINEERING",
+          "CIVIL ENGINEERING",
+          "ARCHITECTURE",
+          "PRODUCTION ENGINEERING",
+          "CHEMICAL ENGINEERING",
+        ],
+        "Year 2": [
+          "COMPUTER SICENCE AND ENGINEERING",
+          "ELECTRONICS AND COMUNICATION",
+          "ELECTRONICS AND ELECTRICAL",
+          "MECHANICAL ENGINEERING",
+          "CIVIL ENGINEERING",
+          "ARCHITECTURE",
+          "PRODUCTION ENGINEERING",
+          "CHEMICAL ENGINEERING",
+        ],
+        "Year 3": [
+          "COMPUTER SICENCE AND ENGINEERING",
+          "ELECTRONICS AND COMUNICATION",
+          "ELECTRONICS AND ELECTRICAL",
+          "MECHANICAL ENGINEERING",
+          "CIVIL ENGINEERING",
+          "ARCHITECTURE",
+          "PRODUCTION ENGINEERING",
+          "CHEMICAL ENGINEERING",
+        ],
+        "Year 4": [
+          "COMPUTER SICENCE AND ENGINEERING",
+          "ELECTRONICS AND COMUNICATION",
+          "ELECTRONICS AND ELECTRICAL",
+          "MECHANICAL ENGINEERING",
+          "CIVIL ENGINEERING",
+          "ARCHITECTURE",
+          "PRODUCTION ENGINEERING",
+          "CHEMICAL ENGINEERING",
+        ],
+      },
     };
   },
   watch: {
     selectedYears: {
       handler(newSelectedYears) {
-        // Close the modal when a checkbox is unchecked
         for (const year in this.modals) {
           if (!newSelectedYears.includes(year)) {
             this.modals[year].visible = false;
@@ -158,39 +217,97 @@ export default {
   methods: {
     openModal(year) {
       if (this.modals[year].isChecked) return;
-      this.showDialog=false;
       this.modals[year].visible = true;
     },
     closeModal(year) {
       this.modals[year].visible = false;
       this.modals[year].showDialog = false;
-      this.modals[year].isChecked = false; // Reset isChecked to false
+      this.modals[year].isChecked = false;
+      for (const batch in this.modals[year].checked) {
+        this.modals[year].checked[batch] = false;
+      }
       this.selectedYears = this.selectedYears.filter((item) => item !== year);
     },
     addText(year) {
-    const text = this.modals[year].inputText.trim();
-    if (text !== "") {
-      if (!this.modals[year].texts.includes(text)) {
-        this.modals[year].texts.push(text);
-      } else {
-        alert("Duplicate entry");
+      const text = this.modals[year].inputText.trim();
+      if (text !== "") {
+        alert("Batch feature is disabled for " + year);
+        this.modals[year].inputText = "";
       }
-      this.modals[year].inputText = "";
-    }
-  },
-    uploadCSV(year) {
-      // Handle CSV file upload for the selected year
-      year;
     },
-    submitForm() {
-      this.showDialog = true;
+    async submitForm(year) {
+      this.modals[year].showDialog = true;
     },
-    finalsubmit() {},
-    Dialogsubmit(year) {
+
+    finalSubmit() {
+  axios
+    .post("http://127.0.0.1:8000/setexam/upload_csv/allotment", {
+      examId: this.examId,
+    })
+    .then((response) => {
+      alert(response.data); 
+    })
+    .catch((error) => {
+      alert(error.data)
+    });
+},
+
+    uploadCSV(year, batch, file) {
+      this.modals[year].file = file;
+      console.log(
+        `Uploading CSV for Year: ${year}, Batch: ${batch}, File: ${file.name}}`
+      );
+    },
+
+    async examidsubmit() {
+      const examData = {
+        examName: this.examName,
+        examDate: this.examDate,
+        examTime: this.examTime,
+      };
+      console.log("Exam Data:", examData);
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/setexam/get_exam_details",
+          examData
+        );
+        this.examId = response.data.exam_id;
+        alert('Exam id pushed to database!');
+      } catch (error) {
+        alert(error.data);
+      }
+    },
+
+    async dialogSubmit(year) {
       this.modals[year].showDialog = false;
       this.modals[year].visible = false;
       this.modals[year].isChecked = true;
       this.selectedYears = this.selectedYears.filter((item) => item !== year);
+
+      try {
+        for (const batch in this.modals[year].checked) {
+          if (this.modals[year].checked[batch]) {
+            const formData = new FormData();
+            formData.append("exam_id", this.examId);
+            formData.append("year_name", year);
+            formData.append("exam_time", this.examTime);
+            formData.append("branch_time", batch);
+            formData.append("csv_file", this.modals[year].file);
+
+            try {
+              const response = await axios.post(
+                "http://127.0.0.1:8000/setexam/upload_csv",
+                formData
+              );
+              console.log(response.data);
+            } catch (error) {
+              console.error(error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 };
@@ -236,6 +353,49 @@ export default {
 input[type="date"] {
   padding: 0.6em;
   border-radius: 0.5em;
+}
+
+.batch-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1em;
+}
+
+.delete-button {
+  padding: 8px 16px;
+  margin-left: 8px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #d32f2f;
+}
+
+.delete-button:focus {
+  outline: none;
+}
+.batch-item label {
+  flex-grow: 1;
+}
+
+.upload-csv {
+  margin-left: 1em;
+}
+
+.batch-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5em;
+}
+
+.batch-item input[type="checkbox"] {
+  margin-right: 0.5em;
 }
 
 #container-whole {
@@ -317,6 +477,9 @@ button:hover {
   padding: 20px;
   background-color: #f4f4f4;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .yearslabel {
@@ -342,14 +505,13 @@ button:hover {
   margin-right: 0.5em;
 }
 
-/* Adjust the width based on your preference */
 @media screen and (min-width: 600px) {
   .years-checkbox {
     width: 50%;
   }
 
   .modal {
-    color: black; /* Align items to the top */
+    color: black;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -386,8 +548,12 @@ button:hover {
   }
 
   .row {
-    margin: 2em;
     display: flex;
+    justify-content: flex-end;
+    margin-top: 1em;
+  }
+  .batch-list .batch-item:not(:last-child) {
+    margin-bottom: 0;
   }
 }
 </style>

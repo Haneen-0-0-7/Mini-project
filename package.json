@@ -21,7 +21,8 @@
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.22",
     "vue": "^3.2.13",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "vue-select": "^4.0.0-beta.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

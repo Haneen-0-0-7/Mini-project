@@ -151,6 +151,7 @@ export default {
       this.email = "";
       this.showModal = false;
     },
+    
     deleteFaculty(id) {
       axios.delete(`http://127.0.0.1:8000/faculty/${id}`).then((response) => {
         this.refreshData();

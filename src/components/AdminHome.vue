@@ -4,6 +4,7 @@
     <div id="container">
       <div id="button">
         <AddFacultyButton />
+        <FacultyClassroom />
         <SetCancelExamButton/>
         <AttendenceButton />
         <MalpracticeRecordsButton/>
@@ -17,13 +18,15 @@ import AddFacultyButton from './AddFacultyButton.vue';
 import SetCancelExamButton from './SetCancelExamButton.vue';
 import AttendenceButton from './AttendenceButton.vue';
 import MalpracticeRecordsButton from './MalpracticeRecordsButton.vue';
+import FacultyClassroom from './AdminFacultyClassroom.vue'
 export default {
   name:'AdminHome',
   components:{
     AddFacultyButton,
     SetCancelExamButton,
     AttendenceButton,
-    MalpracticeRecordsButton
+    MalpracticeRecordsButton,
+    FacultyClassroom
   }
 };
 </script>

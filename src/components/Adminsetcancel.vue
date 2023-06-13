@@ -7,11 +7,11 @@
           <label>Exam Name:</label>
           <input type="text" v-model="examName" />
         </div>
-        <div class="text">
+        <!-- <div class="text">
           <label>Date of Exam:</label>
           <input type="date" v-model="examDate" />
-        </div>
-        <label class="radiohead">Time of Examination:</label>
+        </div> -->
+        <!-- <label class="radiohead">Time of Examination:</label>
         <div class="radiobtn">
           <div>
             <input
@@ -31,7 +31,7 @@
             />
             <label for="afternoon" class="radiolabel">Afternoon</label>
           </div>
-        </div>
+        </div> -->
         <div>
           <button
             type="button"
@@ -100,9 +100,14 @@
             </div>
           </div>
         </div>
+        <div class="buttons">
         <button type="button" class="finalsubmit" @click.prevent="finalSubmit">
           Submit
         </button>
+        <div>
+        <a href ="/timeTable" class="timeTable">NextPage</a>
+      </div>
+      </div>
       </div>
     </div>
   </div>
@@ -115,8 +120,8 @@ export default {
   data() {
     return {
       examName: "",
-      examDate: "",
-      examTime: "",
+      // examDate: "",
+      // examTime: "",
       examId: "",
       years: ["Year 1", "Year 2", "Year 3", "Year 4"],
       selectedYears: [],
@@ -262,8 +267,8 @@ export default {
     async examidsubmit() {
       const examData = {
         examName: this.examName,
-        examDate: this.examDate,
-        examTime: this.examTime,
+        // examDate: this.examDate,
+        // examTime: this.examTime,
       };
       console.log("Exam Data:", examData);
       try {
@@ -290,7 +295,7 @@ export default {
             const formData = new FormData();
             formData.append("exam_id", this.examId);
             formData.append("year_name", year);
-            formData.append("exam_time", this.examTime);
+            // formData.append("exam_time", this.examTime);
             formData.append("branch_time", batch);
             formData.append("csv_file", this.modals[year].file);
 
@@ -308,6 +313,9 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    NextPage() {
+      this.$router.push('/timeTable');
     },
   },
 };
@@ -555,5 +563,20 @@ button:hover {
   .batch-list .batch-item:not(:last-child) {
     margin-bottom: 0;
   }
-}
+
+  .timeTable {
+    color:rgb(11, 47, 231);
+    
+    
+    
+    
+    
+
+  }
+
+ .buttons {
+    display: flex;
+    justify-content: space-between;
+  } 
+} 
 </style>

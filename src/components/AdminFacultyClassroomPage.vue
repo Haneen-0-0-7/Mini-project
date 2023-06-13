@@ -25,28 +25,40 @@
         </div>
         <div v-if="selectedExam && showTable" class="selected-container">
           <h2>{{ selectedExamName }}</h2>
-          <table>
+          <!-- <table>
             <thead>
               <tr>
                 <th style="width: 10%;">Exam ID</th>
-                <th style="width: 20%;">Exam Name</th>
-                <th style="width: 15%;">Exam Date</th>
+                <th style="width: 20%;">Exam Name</th> -->
+                <!-- <th style="width: 15%;">Exam Date</th>
                 <th style="width: 15%;">Exam Time</th>
                 <th style="width: 20%;">CSV Files</th>
-                <th style="width: 20%;">Faculty Allotted</th>
+                <th style="width: 20%;">Faculty Allotted</th> -->
+              <!-- </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ selectedExamDetails.exam_id }}</td>
+                <td>{{ selectedExamDetails.exam_name }}</td>
+              </tr>
+            </tbody>
+          </table> -->
+
+          <table v-if="selectedExamDetails && selectedExamDetails.alloted_faculty && selectedExamDetails.alloted_faculty.length>0">
+            <thead>
+              <tr>
+                <th>Class ID</th>
+                <th>Faculty</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in selectedExamDetails" :key="item.id">
-                <td>{{ item.exam_id }}</td>
-                <td>{{ item.examname }}</td>
-                <td>{{ item.examdate }}</td>
-                <td>{{ item.examtime }}</td>
-                <td>{{ item.csv_file }}</td>
-                <td>{{ item.faculty_assigned }}</td>
+              <tr v-for="faculty in selectedExamDetails.alloted_faculty" :key="faculty.classid">
+                <td><a href="#" @click="downloadSeatsData(faculty.classid)">{{ faculty.classid }}</a></td>
+                <td>{{ faculty.faculty }}</td>
               </tr>
             </tbody>
           </table>
+              
           <div class="form-container">
             <label>Class Allotted:</label>
             <input type="text" v-model="classAllotted" />
@@ -76,7 +88,7 @@
     },
     computed: {
       visibleExams() {
-        return this.exams.slice(0, 8); // Limit the visible exams to the first 8 entries
+        return this.exams.slice(-8); // Limit the visible exams to the first 8 entries
       },
     },
     methods: {
@@ -100,13 +112,25 @@
             `http://127.0.0.1:8000/setexam/get_exam_details/${this.selectedExam}`
           )
           .then((response) => {
-            this.selectedExamDetails = response.data;
+            // this.selectedExamDetails = response.data;
+            this.selectedExamDetails = JSON.parse(JSON.stringify(response.data));
+            console.log(this.selectedExamDetails);
             this.showTable = true; // Show the table after loading selected exam details
           })
           .catch((error) => {
             console.error(error);
           });
       },
+      downloadSeatsData(classId) {
+      const url = `/setexam/download_seats_csv/${classId}/`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'seats_data.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     },
     watch: {
       selectedExam() {
@@ -178,15 +202,19 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    color: white; /* Set the table font color to white */
-  }
-  
+    color: rgb(0, 0, 0);/* Set the table font color to white */
+   }
+   
   table th,
   table td {
     padding: 8px;
     border: 1px solid #ccc;
-    width: 25%; /* Increase the width of each column */
+    background-color: #d6d8e3;
+    width: 65%; /* Increase the width of each column */
   }
+
+  
+
   
   .form-container {
     margin-top: 2em;

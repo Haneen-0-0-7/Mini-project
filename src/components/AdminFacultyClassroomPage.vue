@@ -19,12 +19,12 @@
               </option>
             </select>
           </div>
-          <button class="styled-submit-button" @click="loadSelectedExamDetails">
+          <!-- <button class="styled-submit-button" @click="loadSelectedExamDetails">
             Submit
-          </button>
+          </button> -->
         </div>
         <div v-if="selectedExam && showTable" class="selected-container">
-          <h2>{{ selectedExamName }}</h2>
+          <h2 class="examtitle">{{ selectedExamName }}</h2>
           <!-- <table>
             <thead>
               <tr>
@@ -59,11 +59,9 @@
             </tbody>
           </table>
               
-          <div class="form-container">
-            <label>Class Allotted:</label>
-            <input type="text" v-model="classAllotted" />
+          <!-- <div class="form-container">
             <button @click="submitForm">Submit</button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -185,6 +183,10 @@
     overflow-y: auto;
   }
   
+  .examtitle{
+    color: white;
+  }
+
   .selected-container {
     margin-top: 2em;
     width: 60%;

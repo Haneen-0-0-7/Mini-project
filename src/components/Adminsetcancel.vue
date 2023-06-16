@@ -7,11 +7,13 @@
           <label>Exam Name:</label>
           <input type="text" v-model="examName" />
         </div>
-        <!-- <div class="text">
+
+        <div class="text">
           <label>Date of Exam:</label>
           <input type="date" v-model="examDate" />
-        </div> -->
-        <!-- <label class="radiohead">Time of Examination:</label>
+        </div>
+
+        <label class="radiohead">Time of Examination:</label>
         <div class="radiobtn">
           <div>
             <input
@@ -31,15 +33,19 @@
             />
             <label for="afternoon" class="radiolabel">Afternoon</label>
           </div>
-        </div> -->
+        </div>
+
         <div>
-          <button
-            type="button"
-            class="finalsubmit"
-            @click.prevent="examidsubmit"
-          >
-            Submit
-          </button>
+          <div class="Retrievediv">
+            <button
+              type="button"
+              class="Retrieve"
+              @click.prevent="examidsubmit"
+              :disabled="disabled"
+            >
+              Retrieve Exam Id
+            </button>
+          </div>
           <label class="yearslabel">Years Taking Part in Exam:</label>
           <div class="years-checkboxes">
             <div v-for="year in years" :key="year" class="years-checkbox">
@@ -100,14 +106,11 @@
             </div>
           </div>
         </div>
-        <div class="buttons">
-        <button type="button" class="finalsubmit" @click.prevent="finalSubmit">
-          Submit
-        </button>
-        <div>
-        <a href ="/timeTable" class="timeTable">NextPage</a>
-      </div>
-      </div>
+        <div class="Retrievediv">
+          <button type="button" class="Retrieve" @click.prevent="finalSubmit" :disabled="!disabled">
+            Allot Students
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -120,8 +123,9 @@ export default {
   data() {
     return {
       examName: "",
-      // examDate: "",
-      // examTime: "",
+      examDate: "",
+      examTime: "",
+      disabled: false,
       examId: "",
       years: ["Year 1", "Year 2", "Year 3", "Year 4"],
       selectedYears: [],
@@ -233,6 +237,7 @@ export default {
       }
       this.selectedYears = this.selectedYears.filter((item) => item !== year);
     },
+
     addText(year) {
       const text = this.modals[year].inputText.trim();
       if (text !== "") {
@@ -245,17 +250,18 @@ export default {
     },
 
     finalSubmit() {
-  axios
-    .post("http://127.0.0.1:8000/setexam/upload_csv/allotment", {
-      examId: this.examId,
-    })
-    .then((response) => {
-      alert(response.data); 
-    })
-    .catch((error) => {
-      alert(error.data)
-    });
-},
+      axios
+        .post("http://127.0.0.1:8000/setexam/upload_csv/allotment", {
+          examId: this.examId,
+        })
+        .then((response) => {
+          alert(response.data);
+        })
+        .catch((error) => {
+          alert(error.data);
+        });
+        this.disabled = false;
+    },
 
     uploadCSV(year, batch, file) {
       this.modals[year].file = file;
@@ -265,8 +271,10 @@ export default {
     },
 
     async examidsubmit() {
+      const formattedDate = this.examDate ? `(${this.examDate})` : "";
+      const formattedTime = this.examTime ? `(${this.examTime})` : "";
       const examData = {
-        examName: this.examName,
+        examName: `${this.examName}-${formattedDate}-${formattedTime}`,
         // examDate: this.examDate,
         // examTime: this.examTime,
       };
@@ -277,7 +285,8 @@ export default {
           examData
         );
         this.examId = response.data.exam_id;
-        alert('Exam id pushed to database!');
+        alert("Exam id pushed to database!");
+        this.disabled = true;
       } catch (error) {
         alert(error.data);
       }
@@ -315,7 +324,7 @@ export default {
       }
     },
     NextPage() {
-      this.$router.push('/timeTable');
+      this.$router.push("/timeTable");
     },
   },
 };
@@ -368,6 +377,12 @@ input[type="date"] {
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 1em;
+}
+
+button:disabled {
+  background-color: grey;
+  color: white;
+  cursor: not-allowed;
 }
 
 .delete-button {
@@ -532,10 +547,34 @@ button:hover {
     flex-direction: column;
   }
 
+  .Retrievediv {
+    display: flex;
+    justify-content: center;
+    margin: 1em;
+  }
   .column {
     display: flex;
     flex-direction: column;
     gap: 1em;
+  }
+
+  .Retrieve {
+    margin: 10px;
+    padding: 10px 15px;
+    border-radius: 15%;
+    border: 3px aquamarine solid;
+    background-color: black;
+    color: aquamarine;
+    font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+      "Lucida Sans Unicode", Geneva, Verdana;
+    transition: 0.4s;
+  }
+
+  .Retrieve:hover {
+    background-color: aquamarine;
+    color: black;
+    border: 3px black solid;
+    font-family: Georgia, "Times New Roman", Times;
   }
 
   .text-div {
@@ -565,18 +604,12 @@ button:hover {
   }
 
   .timeTable {
-    color:rgb(11, 47, 231);
-    
-    
-    
-    
-    
-
+    color: rgb(11, 47, 231);
   }
 
- .buttons {
+  .buttons {
     display: flex;
     justify-content: space-between;
-  } 
-} 
+  }
+}
 </style>

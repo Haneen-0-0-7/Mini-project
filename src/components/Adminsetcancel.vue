@@ -107,9 +107,63 @@
           </div>
         </div>
         <div class="Retrievediv">
-          <button type="button" class="Retrieve" @click.prevent="finalSubmit" :disabled="!disabled">
+          <button
+            type="button"
+            class="Retrieve"
+            @click.prevent="finalSubmit"
+            :disabled="!disabled"
+          >
             Allot Students
           </button>
+        </div>
+      </div>
+      <div v-if="showViewModal" class="floating-modal">
+        <div class="modal-content">
+          <div class="tableh2">
+            <h2>ALLOT CLASSES AND FACULTIES</h2>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="head">Class Id</th>
+                <th class="head">Faculty</th>
+                <th class="head">Room allocated</th>
+                <th class="head">Class Allotment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="f in faculties" v-bind:key="f.class_id">
+                <td>{{ f.class_id }}</td>
+                <td class="facultypass">
+                  <!-- <div class="dropdown-container"> -->
+                  <div class="dropdown">
+                    <select
+                      v-model="selectedExam"
+                      class="styled-dropdown"
+                      style="width: 220px"
+                    >
+                      <!-- <option selected="">Faculty</option> -->
+                      <option
+                        v-for="exam in exams"
+                        :key="exam.FacultyId"
+                        :value="exam.FacultyId"
+                      >
+                        {{ exam.FacultyName }}
+                      </option>
+                    </select>
+                  </div>
+                  <!-- </div> -->
+                </td>
+                <td class="facultyemail">
+                  <input type="text" placeholder="Classroom Allotted" class="classallottedtext"/>
+                </td>
+                <td class="facultyemail">
+                  <a href="#" @click="downloadSeatsData(f.class_id)">Download</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <button @click="showViewModal = false" class="Retrieve">Close</button>
         </div>
       </div>
     </div>
@@ -122,9 +176,13 @@ export default {
   name: "adminsetcancel_",
   data() {
     return {
+      showViewModal: false,
       examName: "",
       examDate: "",
       examTime: "",
+      classes: [],
+      faculties: [],
+      exams: [],
       disabled: false,
       examId: "",
       years: ["Year 1", "Year 2", "Year 3", "Year 4"],
@@ -223,7 +281,45 @@ export default {
       deep: true,
     },
   },
+  mounted() {
+    this.fetchExams();
+  },
+
+  computed: {
+    visibleExams() {
+      return this.exams.slice(-8); // Limit the visible exams to the first 8 entries
+    },
+  },
   methods: {
+    refreshData() {
+      axios
+        .get("http://127.0.0.1:8000/setexam/upload_csv/allotment")
+        .then((response) => {
+          this.faculties = response.data;
+        });
+    },
+
+    downloadSeatsData(classId) {
+      const url = `/setexam/download_seats_csv/${classId}/`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'seats_data.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+
+    fetchExams() {
+      axios
+        .get("http://127.0.0.1:8000/faculty")
+        .then((response) => {
+          this.exams = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+
     openModal(year) {
       if (this.modals[year].isChecked) return;
       this.modals[year].visible = true;
@@ -256,11 +352,13 @@ export default {
         })
         .then((response) => {
           alert(response.data);
+          this.refreshData();
         })
         .catch((error) => {
           alert(error.data);
         });
-        this.disabled = false;
+      this.disabled = false;
+      this.showViewModal = true;
     },
 
     uploadCSV(year, batch, file) {
@@ -331,6 +429,12 @@ export default {
 </script>
 
 <style scoped>
+.tableh2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2em;
+}
 .modaltextfield {
   padding: 0.5em;
 }
@@ -348,12 +452,34 @@ export default {
 .radiohead {
   font-size: 1.3em;
 }
+
+.styled-dropdown {
+  /* Add your custom styles to make the dropdown look styled */
+  /* For example: */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+  width: 100%; /* Make the dropdown width fill the container */
+  height: auto;
+  max-height: 160px; /* Limit the maximum height to 160px */
+  overflow-y: auto;
+}
 .radiobtn {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-evenly;
   margin: 0.5em;
+}
+
+.classallottedtext{
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+  width: 100%; /* Make the dropdown width fill the container */
+  height: auto;
 }
 
 .text {
@@ -377,6 +503,36 @@ input[type="date"] {
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 1em;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.dropdown-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+th,
+td {
+  padding: 5px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.modal-content > h2 {
+  margin-left: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button:disabled {
@@ -610,6 +766,13 @@ button:hover {
   .buttons {
     display: flex;
     justify-content: space-between;
+  }
+
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    padding: 3em;
   }
 }
 </style>

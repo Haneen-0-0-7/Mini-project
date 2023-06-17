@@ -155,11 +155,19 @@
                   <!-- </div> -->
                 </td>
                 <td class="facultyemail">
-                  <input type="text" placeholder="Classroom Allotted" class="classallottedtext"/>
+                  <input
+                    type="text"
+                    placeholder="Classroom Allotted"
+                    class="classallottedtext"
+                  />
                 </td>
                 <td class="facultyemail">
-                  <a href="#" @click="downloadSeatsData(f.class_id)">Download</a>
+                  <a href="#" @click="downloadSeatsData(f.class_id)"
+                    >Download</a
+                  >
                 </td>
+                <td class="facultyemail">
+                {{ f.examid }}</td>
               </tr>
             </tbody>
           </table>
@@ -182,6 +190,7 @@ export default {
       examTime: "",
       classes: [],
       faculties: [],
+      filtered: [],
       exams: [],
       disabled: false,
       examId: "",
@@ -291,19 +300,25 @@ export default {
     },
   },
   methods: {
+    filteredFaculties() {
+      return this.faculties.filter((f) => f.examid === this.examId);
+    },
     refreshData() {
       axios
         .get("http://127.0.0.1:8000/setexam/upload_csv/allotment")
         .then((response) => {
-          this.faculties = response.data;
+          this.faculties = response.data
+
+          this.filtered = this.filteredFaculties()
         });
+        console.log(this.faculties)
     },
 
     downloadSeatsData(classId) {
       const url = `/setexam/download_seats_csv/${classId}/`;
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'seats_data.csv';
+      link.download = "seats_data.csv";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -473,7 +488,7 @@ export default {
   margin: 0.5em;
 }
 
-.classallottedtext{
+.classallottedtext {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 8px;

@@ -292,15 +292,20 @@ export default {
   },
   methods: {
     refreshData() {
+      const examId = localStorage.getItem('examId');
+      
       axios
-        .get("http://127.0.0.1:8000/setexam/upload_csv/allotment")
+        .get(`http://127.0.0.1:8000/setexam/display_allotment/${examId}/`)
         .then((response) => {
           this.faculties = response.data;
+          console.log(response.data)
         });
     },
 
     downloadSeatsData(classId) {
-      const url = `/setexam/download_seats_csv/${classId}/`;
+      // const url = `http://127.0.0.1:8000/setexam/download_seats_csv/${classId}/`;
+      const url = `http://127.0.0.1:8000/setexam/download_seats_csv/${classId}/`;
+
       const link = document.createElement('a');
       link.href = url;
       link.download = 'seats_data.csv';
@@ -383,11 +388,12 @@ export default {
           examData
         );
         this.examId = response.data.exam_id;
+        localStorage.setItem('examId', this.examId)
         alert("Exam id pushed to database!");
         this.disabled = true;
       } catch (error) {
         alert(error.data);
-      }
+      } 
     },
 
     async dialogSubmit(year) {
@@ -398,6 +404,7 @@ export default {
 
       try {
         for (const batch in this.modals[year].checked) {
+          console.log(batch)
           if (this.modals[year].checked[batch]) {
             const formData = new FormData();
             formData.append("exam_id", this.examId);
@@ -405,7 +412,8 @@ export default {
             // formData.append("exam_time", this.examTime);
             formData.append("branch_time", batch);
             formData.append("csv_file", this.modals[year].file);
-
+            console.log(this.modals[year].file)
+            console.log(formData.values)
             try {
               const response = await axios.post(
                 "http://127.0.0.1:8000/setexam/upload_csv",

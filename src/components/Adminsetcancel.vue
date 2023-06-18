@@ -134,6 +134,8 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          selectedBatches: [],
+          // batch: "",
         },
         "Year 2": {
           visible: false,
@@ -143,6 +145,8 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          selectedBatches: [],
+          // batch: "",
         },
         "Year 3": {
           visible: false,
@@ -152,6 +156,8 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          selectedBatches: [],
+          // batch: "",
         },
         "Year 4": {
           visible: false,
@@ -161,6 +167,8 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          selectedBatches: [],
+          // batch: "",
         },
       },
       batchList: {
@@ -290,16 +298,24 @@ export default {
       this.selectedYears = this.selectedYears.filter((item) => item !== year);
 
       try {
-        for (const batch in this.modals[year].checked) {
-          if (this.modals[year].checked[batch]) {
-            const formData = new FormData();
-            formData.append("exam_id", this.examId);
-            formData.append("year_name", year);
-            // formData.append("exam_time", this.examTime);
-            formData.append("branch_time", batch);
-            formData.append("csv_file", this.modals[year].file);
+        // for (const batch in this.modals[year].checked) {
+        //   if (this.modals[year].checked[batch]) {
+        //     const formData = new FormData();
+        //     formData.append("exam_id", this.examId);
+        //     formData.append("year_name", year);
+        //     // formData.append("exam_time", this.examTime);
+        //     formData.append("branch_time", batch);
+        //     formData.append("csv_file", this.modals[year].texts[batch]);
 
-            try {
+        for (const batch of selectedBatches) {
+          const formData = new FormData();
+          formData.append("exam_id", this.examId);
+          formData.append("year_name", year);
+          // formData.append("exam_time", this.examTime);
+          formData.append("branch_time", batch);
+          formData.append("csv_file", this.modals[year].texts[batch]);
+
+          try {
               const response = await axios.post(
                 "http://127.0.0.1:8000/setexam/upload_csv",
                 formData
@@ -310,7 +326,7 @@ export default {
             }
           }
         }
-      } catch (error) {
+       catch (error) {
         console.error(error);
       }
     },

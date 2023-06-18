@@ -4,59 +4,47 @@
     <div class="modal-content">
       <h2>Malpractice Form</h2>
       <form @submit.prevent="addFaculty">
-        <input
-          required
-          class="input"
-          type="text"
-          id="username"
-          v-model="Name"
-          placeholder="Name of Student"
-        />
-        <br />
-        <input
-          required
-          type="text"
-          class="input"
-          id="password"
-          v-model="Batch"
-          placeholder="Batch"
-        />
-        <br />
-        <input
-          required
-          type="text"
-          class="input"
-          id="password"
-          v-model="Register"
-          placeholder="RegisterNo"
-        />
-        <br />
-        <input
-          class="input"
-          type="text"
-          id="email"
-          v-model="Class"
-          placeholder="Exam Classroom"
-        />
-        <br />
-        <input
-          class="input"
-          type="text"
-          id="email"
-          v-model="Invigilator"
-          placeholder="Name of Invigilator"
-        />
-        <br />
-        <input
-          class="input"
-          type="text"
-          id="email"
-          v-model="Remarks"
-          placeholder="Remarks(in 15 words or so)"
-        />
-        <br />
-        <div id="buttondiv">
-          <button type="submit" class="btnsubmit" @click="addmalpractice">Add</button>
+        <div class="form-group">
+          <label for="local-storage-value" class="form-label"
+            >Invigilator</label
+          >
+          <input
+            type="text"
+            id="local-storage-value"
+            :value="localStorageValue"
+            readonly
+            class="form-input"
+          />
+        </div>
+        <div class="dropdown-container">
+          <div class="dropdown">
+            <select
+              v-model="SelectedStudent"
+              id="selected-student"
+              class="styled-dropdown"
+              style="width: 220px"
+            >
+              <option value="" selected>Choose a Roll No</option>
+              <option v-for="(roll, index) in rolls" :key="index" :value="roll">
+              {{ roll }}
+            </option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="remarks" class="form-label">Remarks (10 words)</label>
+          <input
+            type="text"
+            id="remarks"
+            placeholder="Enter remarks"
+            v-model="Remarks"
+            class="form-input"
+          />
+        </div>
+        <div class="button-container">
+          <button type="submit" class="btnsubmit" @click="addmalpractice">
+            Add
+          </button>
           <button class="btnsubmit" @click="showModal = false">Close</button>
         </div>
       </form>
@@ -65,51 +53,65 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 export default {
   name: "FacultyMalpractice",
   data() {
     return {
       showModal: false,
-      Name: "",
-      Register : "",
-      Batch:"",
-      Class : "",
+      SelectedStudent: "",
+      Invigilator: "",
       Remarks: "",
-      Invigilator:"",
+      sectionid: "",
+      rolls:[],
     };
   },
-  methods:{
+  mounted() {
+    this.Invigilator = localStorage.getItem("facultyname");
+    this.sectionid = localStorage.getItem("sectionId");
+    this.fetchRoll();
+  },
+
+  computed: {
+    localStorageValue() {
+      return localStorage.getItem("facultyname");
+    },
+  },
+  methods: {
     refreshData() {
       axios.get("http://127.0.0.1:8000/faculty").then((response) => {
         this.faculties = response.data;
       });
     },
+    fetchRoll() {
+      axios
+        .get(`http://127.0.0.1:8000/invigilator/malpractice/get_roll/${this.sectionid}`)
+        .then((response) => {
+          this.rolls = response.data.roll_numbers;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
     addFaculty() {
       // Add logic to send the form data to the server
       const data = {
-        StudentName: this.Name,
-        StudentRegister: this.Register,
-        StudentBatch: this.Batch,
-        StudentClass: this.Class,
-        StudentRemark: this.Remarks,
+        StudentRegister: this.SelectedStudent,
         StudentInvigilator: this.Invigilator,
+        StudentRemark: this.Remarks,
       };
-
+      console.log(data);
       axios.post("http://127.0.0.1:8000/malpractice", data).then((response) => {
         alert(response.data);
         this.refreshData();
       });
       // Reset the form fields and close the modal
-      this.Name = "";
-      this.Register = "";
-      this.Batch = "";
-      this.Class = "";
+      this.SelectedStudent = "";
       this.Remarks = "";
       this.Invigilator = "";
       this.showModal = false;
     },
-  }
+  },
 };
 </script>
 
@@ -131,6 +133,12 @@ export default {
   color: black;
   border: 3px black solid;
   font-family: Georgia, "Times New Roman", Times;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 16px;
 }
 
 input[type="text"],
@@ -209,5 +217,41 @@ form {
   background-color: aquamarine;
   color: black;
   border: 3px black solid;
+}
+
+.styled-dropdown {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+  width: 100%;
+  height: auto;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.dropdown-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1em;
+  margin-bottom: 1.5em;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 </style>

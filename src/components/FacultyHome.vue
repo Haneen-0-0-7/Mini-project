@@ -3,7 +3,7 @@
     <h1 id="title"></h1>
     <div id="container">
       <div id="button">
-        <FacultyAllotment />
+        <!-- <FacultyAllotment /> -->
         <FacultyAttendance />
         <FacultyMalpractice />
       </div>
@@ -13,13 +13,13 @@
 
 <script>
 
-import FacultyAllotment from "./FacultyAllotment.vue";
+// import FacultyAllotment from "./FacultyAllotment.vue";
 import FacultyAttendance from "./FacultyAttendance.vue";
 import FacultyMalpractice from "./FacultyMalpractice.vue";
 export default {
   name: "AdminHome",
   components: {
-    FacultyAllotment,
+    // FacultyAllotment,
     FacultyAttendance,
     FacultyMalpractice,
   },

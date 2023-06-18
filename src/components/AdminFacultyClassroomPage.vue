@@ -19,30 +19,10 @@
               </option>
             </select>
           </div>
-          <!-- <button class="styled-submit-button" @click="loadSelectedExamDetails">
-            Submit
-          </button> -->
+
         </div>
         <div v-if="selectedExam && showTable" class="selected-container">
           <h2 class="examtitle">{{ selectedExamName }}</h2>
-          <!-- <table>
-            <thead>
-              <tr>
-                <th style="width: 10%;">Exam ID</th>
-                <th style="width: 20%;">Exam Name</th> -->
-                <!-- <th style="width: 15%;">Exam Date</th>
-                <th style="width: 15%;">Exam Time</th>
-                <th style="width: 20%;">CSV Files</th>
-                <th style="width: 20%;">Faculty Allotted</th> -->
-              <!-- </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{{ selectedExamDetails.exam_id }}</td>
-                <td>{{ selectedExamDetails.exam_name }}</td>
-              </tr>
-            </tbody>
-          </table> -->
 
           <table v-if="selectedExamDetails && selectedExamDetails.alloted_faculty && selectedExamDetails.alloted_faculty.length>0">
             <thead>
@@ -59,9 +39,6 @@
             </tbody>
           </table>
               
-          <!-- <div class="form-container">
-            <button @click="submitForm">Submit</button>
-          </div> -->
         </div>
       </div>
     </div>
@@ -214,9 +191,6 @@
     background-color: #d6d8e3;
     width: 65%; /* Increase the width of each column */
   }
-
-  
-
   
   .form-container {
     margin-top: 2em;

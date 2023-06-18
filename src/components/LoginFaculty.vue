@@ -52,6 +52,7 @@ export default {
           } else {
             alert("Invalid credentials");
           }
+          localStorage.setItem('facultyname',this.text)
         })
         .catch((error) => {
           // Handle error

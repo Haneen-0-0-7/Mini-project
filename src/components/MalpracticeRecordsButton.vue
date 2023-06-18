@@ -6,10 +6,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th class="head">StudentName</th>
             <th class="head">RegisterNo</th>
-            <th class="head">Class of exam</th>
-            <th class="head">Batch</th>
             <th class="head">Remark</th>
             <th class="head">Invigilator</th>
             <th class="head">Action</th>
@@ -17,10 +14,7 @@
         </thead>
         <tbody>
           <tr v-for="(f) in faculties" :key="f.StudentId">
-            <td>{{ f.StudentName }}</td>
-            <td class="facultypass">{{ f.StudentRegister }}</td>
-            <td class="facultyemail">{{ f.StudentClass }}</td>
-            <td class="facultyemail">{{ f.StudentBatch }}</td>
+            <td>{{ f.StudentRegister }}</td>
             <td class="facultyemail">{{ f.StudentRemark }}</td>
             <td class="facultyemail">{{ f.StudentInvigilator }}</td>
             <td>

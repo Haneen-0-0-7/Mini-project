@@ -1,5 +1,5 @@
 <template>
-    <button @click = "onClickAdd" class="btn">Allot Faculty/Classroom</button>
+    <button @click = "onClickAdd" class="btn">Exam Records</button>
 </template>
 
 <script>

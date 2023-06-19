@@ -141,6 +141,7 @@
                       v-model="selectedFaculty[f.class_id]"
                       class="styled-dropdown"
                       style="width: 220px"
+                      required
                     >
                       <!-- <option selected="">Faculty</option> -->
                       <option
@@ -156,6 +157,7 @@
                 </td>
                 <td class="facultyemail">
                   <input
+                    required
                     type="text"
                     placeholder="Classroom Allotted"
                     class="classallottedtext"
@@ -324,7 +326,6 @@ export default {
         .get(`http://127.0.0.1:8000/setexam/display_allotment/${examId}/`)
         .then((response) => {
           this.faculties = response.data;
-          console.log(response.data);
         });
     },
 
@@ -389,12 +390,12 @@ export default {
     axios
       .post("http://127.0.0.1:8000/setexam/facultydetails",{data: formData,})
       .then((response) => {
-        // Handle the response from the backend
         console.log(response.data);
+        alert('Faculty Assigned to the respective classes')
       })
       .catch((error) => {
-        // Handle the error
         console.error(error);
+        alert('An Error Occured.(Try filling all the fields)')
       });
   },
 
@@ -404,7 +405,8 @@ export default {
           examId: this.examId,
         })
         .then((response) => {
-          alert(response.data);
+          response
+          alert('Allotment Process is done');
           this.refreshData();
         })
         .catch((error) => {
@@ -416,10 +418,6 @@ export default {
 
     uploadCSV(year, batch, file) {
       this.modals[year].file[batch] = file;
-      console.log(this.modals[year].file[batch]);
-      console.log(
-        `Uploading CSV for Year: ${year}, Batch: ${batch}, File: ${file.name}}`
-      );
     },
 
     async examidsubmit() {
@@ -427,10 +425,7 @@ export default {
       const formattedTime = this.examTime ? `(${this.examTime})` : "";
       const examData = {
         examName: `${this.examName}-${formattedDate}-${formattedTime}`,
-        // examDate: this.examDate,
-        // examTime: this.examTime,
       };
-      console.log("Exam Data:", examData);
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/setexam/get_exam_details",
@@ -442,6 +437,9 @@ export default {
       } catch (error) {
         alert(error.data);
       }
+      this.examName= "";
+      this.examDate= "";
+      this.examTime= "";
     },
 
     async dialogSubmit(year) {

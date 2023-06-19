@@ -10,11 +10,17 @@ import facultyclassallotment from '../views/facultyclassallotment.vue'
 import facultyclassattendance from '../views/facultyclassattendance.vue'
 import adminfacultyclassroom from '../views/adminfacultyclassroom.vue'
 import timetable from '../views/timeTable.vue'
+import adminattendance from '../views/adminattendance.vue'
 const routes = [
     {
         path :'/',
         name:'adminLogin',
         component:adminLogin
+    },
+    {
+        path :'/adminattendance',
+        name:'adminattendance',
+        component:adminattendance
     },
     {
         path:'/adminPage',

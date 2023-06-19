@@ -5,7 +5,7 @@
           <i class="fa-solid fa-users"></i>
         </div>
         <div class="logo">
-          <h3>EXAM RECORDS</h3>
+          <h3>ATTENDANCE REGISTER</h3>
         </div>
         <div class="btn-logout">
           <button @click="btnclick" id="logout">Back</button>
@@ -16,7 +16,7 @@
   
   <script>
   export default {
-    name: "AdminAddFacultyNav",
+    name: "AdminAttendanceNav",
     methods:{
       btnclick(){
         this.$router.push('/adminPage');

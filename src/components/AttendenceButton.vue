@@ -5,6 +5,11 @@
 <script>
     export default{
         name:'AttendenceButton',
+        methods:{
+        onClickAttendance(){
+            this.$router.push('/adminattendance')
+        }
+    }
     }
 </script>
 

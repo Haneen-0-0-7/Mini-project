@@ -8,43 +8,56 @@
             v-model="selectedExam"
             class="styled-dropdown"
             style="width: 220px"
-            @change="onExamChange"
+            @change="fetchClassNames"
           >
             <option value="" selected>Select the Exam</option>
-            <option v-for="(exam, index) in exams" :key="index" :value="exam">
-              {{ exam }}
+            <option
+              v-for="(exam, index) in exams"
+              :key="index"
+              :value="exam.examname"
+            >
+              {{ exam.examname }}
             </option>
           </select>
         </div>
       </div>
 
-      <h2 v-if="selectedExam" class="selected-heading">{{ selectedExam }}</h2>
+      <div class="dropdown-container" v-if="selectedExam">
+        <div class="dropdown">
+          <select
+            v-model="classAllotted"
+            class="styled-dropdown"
+            style="width: 220px"
+            @change="fetchClassDetails"
+          >
+            <option value="">Select a Class</option>
+            <option
+              v-for="className in classNames"
+              :key="className"
+              :value="className"
+            >
+              {{ className }}
+            </option>
+          </select>
+        </div>
+      </div>
 
-      <table v-if="selectedExam" class="table">
+      <h2 v-if="selectedExam" class="selected-heading">{{ classAllotted }}</h2>
+
+      <table v-if="classAllotted" class="table">
         <thead>
           <tr>
-            <th>Student Id</th>
-            <th>Student Name</th>
             <th>Roll No</th>
+            <th>Student Name</th>
             <th>Batch</th>
             <th>Present/Absent</th>
-            <th>Attendance</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(student, index) in students" :key="index">
-            <td>{{ student.student_id }}</td>
-            <td>{{ student.student_name }}</td>
+          <tr v-for="(student, index) in selectedExamDetails" :key="index">
             <td>{{ student.roll_no }}</td>
+            <td>{{ student.student_name }}</td>
             <td>{{ student.batch }}</td>
-            <td>
-              <input
-                type="checkbox"
-                v-model="student.attendance"
-                :id="'attendance-' + student.student_id"
-              />
-              <label :for="'attendance-' + student.student_id"></label>
-            </td>
             <td
               :style="{
                 'background-color': student.attendance ? '#4caf50' : '#f44336',
@@ -56,83 +69,77 @@
           </tr>
         </tbody>
       </table>
-
-      <div v-if="selectedExam" class="button-container">
-        <button class="submit-button" @click="submitAttendance">
-          Submit Attendance
-        </button>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+
 export default {
+  name: "AdminAttendancePage",
   data() {
     return {
       selectedExam: "",
       exams: [],
-      faculty: "",
-      students: [],
+      classAllotted: "", 
+      selectedExamDetails: [], 
+      classNames: [],
     };
   },
   mounted() {
-    this.faculty = localStorage.getItem("facultyname");
     this.fetchExams();
   },
-
   methods: {
     fetchExams() {
       axios
-        .get(`http://127.0.0.1:8000/invigilator/get_examnames/${this.faculty}`)
+        .get("http://127.0.0.1:8000/setexam/get_exam_details/examname")
         .then((response) => {
-          this.exams = response.data.exam_names;
+          this.exams = response.data;
+          console.log(this.exams)
         })
         .catch((error) => {
           console.error(error);
         });
     },
-    onExamChange() {
-      axios
-        .get(
-          `http://127.0.0.1:8000/invigilator/get_attendance/${this.selectedExam}/${this.faculty}`
-        )
-        .then((response) => {
-          this.students = response.data.attendance_data.map((student) => {
-            return {
-              ...student,
-              attendance: false,
-            };
+    fetchClassNames() {
+      if (this.selectedExam) {
+        axios
+          .get(`http://127.0.0.1:8000/setexam/get_class/${this.selectedExam}/`)
+          .then((response) => {
+            this.classNames = response.data.class_names;
+          })
+          .catch((error) => {
+            console.error(error);
           });
-          const sectionId = response.data.section_id;
-          localStorage.setItem("sectionId", sectionId);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      } else {
+        this.classNames = [];
+      }
     },
-    submitAttendance() {
-      const attendanceData = this.students.map((student) => {
-        return {
-          student_id: student.student_id,
-          attendance: student.attendance,
-        };
-      });
 
-      axios
-        .post(
-          `http://127.0.0.1:8000/invigilator/submit_attendance/${this.selectedExam}/`,
-          { attendance_data: attendanceData }
-        )
-        .then((response) => {
-          console.log(response.data);
-          alert('Attendance Marked and Recorded')
-        })
-        .catch((error) => {
-          console.error(error);
-          alert('An Error Occured')
-        });
+    fetchClassDetails() {
+      if (this.selectedExam) {
+        axios
+          .get(
+            `http://127.0.0.1:8000/setexam/get_attendance/${this.selectedExam}/${this.classAllotted}/`
+          )
+          .then((response) => {
+            this.selectedExamDetails = response.data.attendance_data;
+            this.showTable = true;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      } else {
+        this.selectedExamDetails = [];
+        this.showTable = false;
+      }
+    },
+  },
+  watch: {
+    selectedExam: {
+      immediate: true, // Fetch class names when the component is mounted
+      handler: "fetchClassNames",
     },
   },
 };

@@ -4,10 +4,10 @@
     <div id="container">
       <div id="button">
         <AddFacultyButton />
-        <FacultyClassroom />
         <SetCancelExamButton/>
         <AttendenceButton />
         <MalpracticeRecordsButton/>
+        <FacultyClassroom />
       </div>
     </div>
   </div>

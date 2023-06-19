@@ -48,6 +48,7 @@ export default {
         .then((response) => {
           if (response.data.success) {
             // Login successful, redirect to faculty page
+            localStorage.setItem('facultyname',this.text)
             this.$router.push('/facultyPage');
           } else {
             alert("Invalid credentials");

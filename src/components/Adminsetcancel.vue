@@ -138,7 +138,7 @@
                   <!-- <div class="dropdown-container"> -->
                   <div class="dropdown">
                     <select
-                      v-model="selectedExam"
+                      v-model="selectedFaculty[f.class_id]"
                       class="styled-dropdown"
                       style="width: 220px"
                     >
@@ -155,15 +155,32 @@
                   <!-- </div> -->
                 </td>
                 <td class="facultyemail">
-                  <input type="text" placeholder="Classroom Allotted" class="classallottedtext"/>
+                  <input
+                    type="text"
+                    placeholder="Classroom Allotted"
+                    class="classallottedtext"
+                    v-model="classAllotted[f.class_id]"
+                  />
                 </td>
                 <td class="facultyemail">
-                  <a href="#" @click="downloadSeatsData(f.class_id)">Download</a>
+                  <a href="#" @click="downloadSeatsData(f.class_id)"
+                    >Download</a
+                  >
+                </td>
+                <td class="facultyemail">
+                  {{ f.examid }}
                 </td>
               </tr>
             </tbody>
           </table>
-          <button @click="showViewModal = false" class="Retrieve">Close</button>
+          <div class="tablebuttons">
+            <button @click="showViewModal = false" class="Retrieve">
+              Close
+            </button>
+            <button @click="submittableform" class="Retrieve">
+              Submit
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -182,7 +199,10 @@ export default {
       examTime: "",
       classes: [],
       faculties: [],
+      filtered: [],
       exams: [],
+      selectedFaculty: {},
+      classAllotted: {},
       disabled: false,
       examId: "",
       years: ["Year 1", "Year 2", "Year 3", "Year 4"],
@@ -196,6 +216,7 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          file: [],
         },
         "Year 2": {
           visible: false,
@@ -205,6 +226,7 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          file: [],
         },
         "Year 3": {
           visible: false,
@@ -214,6 +236,7 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          file: [],
         },
         "Year 4": {
           visible: false,
@@ -223,6 +246,7 @@ export default {
           isChecked: false,
           disabled: {},
           checked: {},
+          file: [],
         },
       },
       batchList: {
@@ -291,24 +315,24 @@ export default {
     },
   },
   methods: {
+    filteredFaculties() {
+      return this.faculties.filter((f) => f.examid === this.examId);
+    },
     refreshData() {
-      const examId = localStorage.getItem('examId');
-      
+      const examId = this.examId;
       axios
         .get(`http://127.0.0.1:8000/setexam/display_allotment/${examId}/`)
         .then((response) => {
           this.faculties = response.data;
-          console.log(response.data)
+          console.log(response.data);
         });
     },
 
     downloadSeatsData(classId) {
-      // const url = `http://127.0.0.1:8000/setexam/download_seats_csv/${classId}/`;
       const url = `http://127.0.0.1:8000/setexam/download_seats_csv/${classId}/`;
-
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'seats_data.csv';
+      link.download = "seats_data.csv";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -329,6 +353,7 @@ export default {
       if (this.modals[year].isChecked) return;
       this.modals[year].visible = true;
     },
+
     closeModal(year) {
       this.modals[year].visible = false;
       this.modals[year].showDialog = false;
@@ -350,6 +375,29 @@ export default {
       this.modals[year].showDialog = true;
     },
 
+    submittableform() {
+    const formData = [];
+    for (const classId in this.selectedFaculty) {
+      const facultyId = this.selectedFaculty[classId];
+      const selectedFaculty = this.exams.find((exam) => exam.FacultyId === facultyId);
+      const facultyName = selectedFaculty ? selectedFaculty.FacultyName : '';
+      const classAllotted = this.classAllotted[classId];
+      formData.push({ classId,facultyName, classAllotted });
+      console.log(formData);
+    }
+
+    axios
+      .post("http://127.0.0.1:8000/setexam/facultydetails",{data: formData,})
+      .then((response) => {
+        // Handle the response from the backend
+        console.log(response.data);
+      })
+      .catch((error) => {
+        // Handle the error
+        console.error(error);
+      });
+  },
+
     finalSubmit() {
       axios
         .post("http://127.0.0.1:8000/setexam/upload_csv/allotment", {
@@ -367,7 +415,8 @@ export default {
     },
 
     uploadCSV(year, batch, file) {
-      this.modals[year].file = file;
+      this.modals[year].file[batch] = file;
+      console.log(this.modals[year].file[batch]);
       console.log(
         `Uploading CSV for Year: ${year}, Batch: ${batch}, File: ${file.name}}`
       );
@@ -388,12 +437,11 @@ export default {
           examData
         );
         this.examId = response.data.exam_id;
-        localStorage.setItem('examId', this.examId)
         alert("Exam id pushed to database!");
         this.disabled = true;
       } catch (error) {
         alert(error.data);
-      } 
+      }
     },
 
     async dialogSubmit(year) {
@@ -404,16 +452,16 @@ export default {
 
       try {
         for (const batch in this.modals[year].checked) {
-          console.log(batch)
+          console.log(batch);
+          console.log(year);
           if (this.modals[year].checked[batch]) {
             const formData = new FormData();
             formData.append("exam_id", this.examId);
             formData.append("year_name", year);
-            // formData.append("exam_time", this.examTime);
             formData.append("branch_time", batch);
-            formData.append("csv_file", this.modals[year].file);
-            console.log(this.modals[year].file)
-            console.log(formData.values)
+            formData.append("csv_file", this.modals[year].file[batch]);
+            console.log(this.modals[year].file[batch]);
+
             try {
               const response = await axios.post(
                 "http://127.0.0.1:8000/setexam/upload_csv",
@@ -457,6 +505,10 @@ export default {
   font-size: 1.2em;
 }
 
+.tablebuttons{
+  display:flex;
+  margin:1em;
+}
 .radiohead {
   font-size: 1.3em;
 }
@@ -481,7 +533,7 @@ export default {
   margin: 0.5em;
 }
 
-.classallottedtext{
+.classallottedtext {
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 8px;

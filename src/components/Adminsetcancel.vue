@@ -66,7 +66,7 @@
           <div v-if="modals[year].visible" class="modal floating-modal">
             <div class="modalhead">
               <div class="modalhead-left">
-                <h3>{{ year }}</h3>
+                <h2>{{ year }}</h2>
               </div>
             </div>
             <div class="batch-list">
@@ -92,16 +92,16 @@
               </div>
             </div>
             <div class="row">
-              <button type="button" @click="closeModal(year)">Close</button>
-              <button type="button" @click="submitForm(year)">Submit</button>
+              <button type="button" @click="closeModal(year)" class="Retrieve">Close</button>
+              <button type="button" @click="submitForm(year)" class="Retrieve">Submit</button>
             </div>
             <div v-if="modals[year].showDialog" class="modal floating-modal">
               <h3>Are you sure you want to submit?</h3>
               <div class="row">
-                <button type="button" @click="modals[year].showDialog = false">
+                <button type="button" @click="modals[year].showDialog = false" class="Retrieve">
                   No
                 </button>
-                <button type="button" @click="dialogSubmit(year)">Yes</button>
+                <button type="button" @click="dialogSubmit(year)" class="Retrieve">Yes</button>
               </div>
             </div>
           </div>
@@ -135,7 +135,6 @@
               <tr v-for="f in faculties" v-bind:key="f.class_id">
                 <td>{{ f.class_id }}</td>
                 <td class="facultypass">
-                  <!-- <div class="dropdown-container"> -->
                   <div class="dropdown">
                     <select
                       v-model="selectedFaculty[f.class_id]"
@@ -143,7 +142,6 @@
                       style="width: 220px"
                       required
                     >
-                      <!-- <option selected="">Faculty</option> -->
                       <option
                         v-for="exam in exams"
                         :key="exam.FacultyId"
@@ -153,7 +151,6 @@
                       </option>
                     </select>
                   </div>
-                  <!-- </div> -->
                 </td>
                 <td class="facultyemail">
                   <input
@@ -717,6 +714,7 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 5px solid cyan;
 }
 
 .yearslabel {

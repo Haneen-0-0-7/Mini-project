@@ -42,6 +42,8 @@
         </div>
       </div>
 
+      <h2 v-if="selectedExam" class="invigilator-name">Invigilator: {{ invigilatorName }}</h2>
+
       <h2 v-if="selectedExam" class="selected-heading">{{ classAllotted }}</h2>
 
       <table v-if="classAllotted" class="table">
@@ -85,6 +87,7 @@ export default {
       classAllotted: "", 
       selectedExamDetails: [], 
       classNames: [],
+      invigilatorName: "",
     };
   },
   mounted() {
@@ -95,8 +98,7 @@ export default {
       axios
         .get("http://127.0.0.1:8000/setexam/get_exam_details/examname")
         .then((response) => {
-          this.exams = response.data;
-          console.log(this.exams)
+          this.exams = response.data; 
         })
         .catch((error) => {
           console.error(error);
@@ -125,6 +127,7 @@ export default {
           )
           .then((response) => {
             this.selectedExamDetails = response.data.attendance_data;
+            this.invigilatorName = response.data.faculty_name
             this.showTable = true;
           })
           .catch((error) => {
@@ -152,6 +155,11 @@ export default {
   margin-top: 2em;
 }
 
+.invigilator-name {
+  margin-top: 1em;
+  text-align: center;
+  color: white;
+}
 .submit-button {
   padding: 10px 20px;
   background-color: #4caf50;

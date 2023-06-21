@@ -92,16 +92,30 @@
               </div>
             </div>
             <div class="row">
-              <button type="button" @click="closeModal(year)" class="Retrieve">Close</button>
-              <button type="button" @click="submitForm(year)" class="Retrieve">Submit</button>
+              <button type="button" @click="closeModal(year)" class="Retrieve">
+                Close
+              </button>
+              <button type="button" @click="submitForm(year)" class="Retrieve">
+                Submit
+              </button>
             </div>
             <div v-if="modals[year].showDialog" class="modal floating-modal">
               <h3>Are you sure you want to submit?</h3>
               <div class="row">
-                <button type="button" @click="modals[year].showDialog = false" class="Retrieve">
+                <button
+                  type="button"
+                  @click="modals[year].showDialog = false"
+                  class="Retrieve"
+                >
                   No
                 </button>
-                <button type="button" @click="dialogSubmit(year)" class="Retrieve">Yes</button>
+                <button
+                  type="button"
+                  @click="dialogSubmit(year)"
+                  class="Retrieve"
+                >
+                  Yes
+                </button>
               </div>
             </div>
           </div>
@@ -176,9 +190,7 @@
             <button @click="showViewModal = false" class="Retrieve">
               Close
             </button>
-            <button @click="submittableform" class="Retrieve">
-              Submit
-            </button>
+            <button @click="submittableform" class="Retrieve">Submit</button>
           </div>
         </div>
       </div>
@@ -348,6 +360,7 @@ export default {
     },
 
     openModal(year) {
+      if (year === "Year 1") return; // Prevent opening modal for Year 1
       if (this.modals[year].isChecked) return;
       this.modals[year].visible = true;
     },
@@ -374,27 +387,31 @@ export default {
     },
 
     submittableform() {
-    const formData = [];
-    for (const classId in this.selectedFaculty) {
-      const facultyId = this.selectedFaculty[classId];
-      const selectedFaculty = this.exams.find((exam) => exam.FacultyId === facultyId);
-      const facultyName = selectedFaculty ? selectedFaculty.FacultyName : '';
-      const classAllotted = this.classAllotted[classId];
-      formData.push({ classId,facultyName, classAllotted});
-      console.log(formData);
-    }
+      const formData = [];
+      for (const classId in this.selectedFaculty) {
+        const facultyId = this.selectedFaculty[classId];
+        const selectedFaculty = this.exams.find(
+          (exam) => exam.FacultyId === facultyId
+        );
+        const facultyName = selectedFaculty ? selectedFaculty.FacultyName : "";
+        const classAllotted = this.classAllotted[classId];
+        formData.push({ classId, facultyName, classAllotted });
+        console.log(formData);
+      }
 
-    axios
-      .post("http://127.0.0.1:8000/setexam/facultydetails",{data: formData,})
-      .then((response) => {
-        console.log(response.data);
-        alert('Faculty Assigned to the respective classes')
-      })
-      .catch((error) => {
-        console.error(error);
-        alert('An Error Occured.(Try filling all the fields)')
-      });
-  },
+      axios
+        .post("http://127.0.0.1:8000/setexam/facultydetails", {
+          data: formData,
+        })
+        .then((response) => {
+          console.log(response.data);
+          alert("Faculty Assigned to the respective classes");
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("An Error Occured.(Try filling all the fields)");
+        });
+    },
 
     finalSubmit() {
       axios
@@ -402,8 +419,8 @@ export default {
           examId: this.examId,
         })
         .then((response) => {
-          response
-          alert('Allotment Process is done');
+          response;
+          alert("Allotment Process is done");
           this.refreshData();
         })
         .catch((error) => {
@@ -434,9 +451,9 @@ export default {
       } catch (error) {
         alert(error.data);
       }
-      this.examName= "";
-      this.examDate= "";
-      this.examTime= "";
+      this.examName = "";
+      this.examDate = "";
+      this.examTime = "";
     },
 
     async dialogSubmit(year) {
@@ -500,9 +517,9 @@ export default {
   font-size: 1.2em;
 }
 
-.tablebuttons{
-  display:flex;
-  margin:1em;
+.tablebuttons {
+  display: flex;
+  margin: 1em;
 }
 .radiohead {
   font-size: 1.3em;

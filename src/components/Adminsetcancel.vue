@@ -324,6 +324,12 @@ export default {
     visibleExams() {
       return this.exams.slice(-8); // Limit the visible exams to the first 8 entries
     },
+    availableExams() {
+    return this.faculties.filter(faculty => {
+      const selectedFacultyId = this.selectedFaculty[faculty.class_id];
+      return selectedFacultyId !== faculty.FacultyId;
+    });
+  },
   },
   methods: {
     filteredFaculties() {
@@ -387,31 +393,36 @@ export default {
     },
 
     submittableform() {
-      const formData = [];
-      for (const classId in this.selectedFaculty) {
-        const facultyId = this.selectedFaculty[classId];
-        const selectedFaculty = this.exams.find(
-          (exam) => exam.FacultyId === facultyId
-        );
-        const facultyName = selectedFaculty ? selectedFaculty.FacultyName : "";
-        const classAllotted = this.classAllotted[classId];
-        formData.push({ classId, facultyName, classAllotted });
-        console.log(formData);
-      }
+  const allottedRooms = Object.values(this.classAllotted);
+  const uniqueRooms = new Set(allottedRooms);
 
-      axios
-        .post("http://127.0.0.1:8000/setexam/facultydetails", {
-          data: formData,
-        })
-        .then((response) => {
-          console.log(response.data);
-          alert("Faculty Assigned to the respective classes");
-        })
-        .catch((error) => {
-          console.error(error);
-          alert("An Error Occured.(Try filling all the fields)");
-        });
-    },
+  if (allottedRooms.length !== uniqueRooms.size) {
+    // Display error alert if allotted classrooms are repeated
+    alert('Error: Classroom allotments should not be repeated');
+    return;
+  }
+
+  const formData = [];
+  for (const classId in this.selectedFaculty) {
+    const facultyId = this.selectedFaculty[classId];
+    const selectedFaculty = this.exams.find((exam) => exam.FacultyId === facultyId);
+    const facultyName = selectedFaculty ? selectedFaculty.FacultyName : '';
+    const classAllotted = this.classAllotted[classId];
+    formData.push({ classId, facultyName, classAllotted });
+    console.log(formData);
+  }
+
+  axios
+    .post("http://127.0.0.1:8000/setexam/facultydetails", { data: formData })
+    .then((response) => {
+      console.log(response.data);
+      alert('Faculty assigned to the respective classes');
+    })
+    .catch((error) => {
+      console.error(error);
+      alert('An error occurred. Please fill all the fields.');
+    });
+},
 
     finalSubmit() {
       axios
